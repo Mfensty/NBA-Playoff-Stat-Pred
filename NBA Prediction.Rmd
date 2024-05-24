@@ -1,0 +1,108 @@
+---
+title: "NBA Playoff Stat Predictions"
+name: "Matthew Fenstermaker"
+date: "5/23/2024"
+output: html_notebook
+---
+
+*Note: Date is the data edited. Players have been removed when teams lost, as they can no longer be factored in.*
+
+*Available options for players include Tyrese Haliburton, Myles Turner, Pascal Siakam, Jayson Tatum, Jaylen Brown, Jrue Holiday, Derrick White, Luka Doncic, Kyrie Irving, PJ Washington, Derick Lively, Daniel Gafford, Josh Green, Anthony Edwards, KAT, Jaden McDaniels, Rudy Gobert, and Mike Conley.*
+
+```{r echo = T}
+#Read in data and find running average of each category
+
+#Final Average can be found by looking at the last game for each player
+
+library(readxl)
+library(dplyr)
+nba <- read_excel("~/NBA DATA.xlsx")
+nba <- na.omit(nba)
+nba <- nba %>%
+  slice(-c(206, 221)) #Removing Missed Games
+nba$Pts <- as.numeric(nba$Pts)
+nba$Reb <- as.numeric(nba$Reb)
+nba$Assists <- as.numeric(nba$Assists)
+nba$`3PM` <- as.numeric(nba$`3PM`)
+
+nba <- nba %>%
+  group_by(Player) %>%
+  mutate(
+    Running_Avg_Pts = cumsum(Pts) / row_number(),
+    Running_Avg_Reb = cumsum(Reb) / row_number(),
+    Running_Avg_Assists = cumsum(Assists) / row_number(),
+    Running_Avg_3PM = cumsum(`3PM`) / row_number()
+  )
+```
+
+```{r echo = T}
+#Create indicators for each player
+
+DW <- nba %>%
+  filter(Player == "Derrick White")
+LD <- nba %>%
+  filter(Player == "Luka Doncic")
+AE <- nba %>%
+  filter(Player == "Anthony Edwards")
+TH <- nba %>%
+  filter(Player == "Tyrese Haliburton")
+MT <- nba %>%
+  filter(Player == "Myles Turner")
+JB <- nba %>%
+  filter(Player == "Jaylen Brown")
+PJ <- nba %>%
+  filter(Player == "PJ Washington")
+DL <- nba %>%
+  filter(Player == "Dereck Lively")
+DG <- nba %>%
+  filter(Player == "Daniel Gafford")
+MC <- nba %>%
+  filter(Player == "Mike Conley")
+RG <- nba %>%
+  filter(Player == "Rudy Gobert")
+JG <- nba %>%
+  filter(Player == "Josh Green")
+JH <- nba %>%
+  filter(Player == "Jrue Holiday")
+KT <- nba %>%
+  filter(Player == "KAT")
+JM <- nba %>%
+  filter(Player == "Jaden McDaniels")
+PS <- nba %>%
+  filter(Player == "Pascal Siakam")
+JT <- nba %>%
+  filter(Player == "Jayson Tatum")
+KI <- nba %>%
+  filter(Player == "Kyrie Irving")
+```
+
+```{r echo = T}
+#Show graphical analysis of each player with the respected stat line you wish 
+
+library(ggplot2)
+ggplot(KI, aes(x = KI$`Total Game`, y = Pts)) + #Use the indicator markers for player for the first argument after ggplot( and also after the x = 
+  geom_line() +
+  geom_point() +
+  geom_line(aes(y = KI$RegSeasonPPG),color = "blue")+
+  geom_smooth(method = "lm", se = FALSE, color = "red")+
+  labs(title = "Points for Kyrie Irving", #Here you would insert the players name as well after "for" and the respective stat line you modeled
+       x = "Game",
+       y = "Points")
+```
+
+```{r echo = T}
+#Confidence interval for desired player and the stat line wished upon
+
+t.test(LD$Pts, conf.level = 0.65)$conf.int
+```
+
+```{r echo = T}
+#Finding the percentage of how many times a player has done this kind of stat line in the playoffs
+
+prop_over_30 <- 100 * (sum(KI$Pts >= 30) / nrow(KI))
+prop_over_30
+```
+```{r echo = T}
+
+```
+
