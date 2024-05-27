@@ -5,7 +5,7 @@ date: "5/23/2024"
 output: html_notebook
 ---
 
-*Note: Date is the data edited. Players have been removed when teams lost, as they can no longer be factored in.*
+*Note: Date is the when the data is edited. Players have been removed when teams lost, as they can no longer be factored in.*
 
 *Available options for players include Tyrese Haliburton, Myles Turner, Pascal Siakam, Jayson Tatum, Jaylen Brown, Jrue Holiday, Derrick White, Luka Doncic, Kyrie Irving, PJ Washington, Derick Lively, Daniel Gafford, Josh Green, Anthony Edwards, KAT, Jaden McDaniels, Rudy Gobert, and Mike Conley.*
 
@@ -80,27 +80,26 @@ KI <- nba %>%
 #Show graphical analysis of each player with the respected stat line you wish 
 
 library(ggplot2)
-ggplot(KI, aes(x = KI$`Total Game`, y = Pts)) + #Use the indicator markers for player for the first argument after ggplot( and also after the x = 
+ggplot(DW, aes(x = DW$`Total Game`, y = Reb)) + #Use the indicator markers for player for the first argument after ggplot( and also after the x = 
   geom_line() +
   geom_point() +
-  geom_line(aes(y = KI$RegSeasonPPG),color = "blue")+
+  geom_line(aes(y = DW$RegSeasonRPG),color = "blue")+
   geom_smooth(method = "lm", se = FALSE, color = "red")+
-  labs(title = "Points for Kyrie Irving", #Here you would insert the players name as well after "for" and the respective stat line you modeled
+  labs(title = "Rebounds for Derrick White", #Here you would insert the players name as well after "for" and the respective stat line you modeled
        x = "Game",
-       y = "Points")
+       y = "Rebounds")
 ```
 
 ```{r echo = T}
 #Confidence interval for desired player and the stat line wished upon
 
-t.test(LD$Pts, conf.level = 0.65)$conf.int
+t.test(DW$Reb, conf.level = 0.65)$conf.int
 ```
 
 ```{r echo = T}
 #Finding the percentage of how many times a player has done this kind of stat line in the playoffs
 
-prop_over_30 <- 100 * (sum(KI$Pts >= 30) / nrow(KI))
-prop_over_30
+100 * (sum(DW$Reb > 4) / nrow(DW))
 ```
 ```{r echo = T}
 
