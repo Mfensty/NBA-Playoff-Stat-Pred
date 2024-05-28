@@ -7,7 +7,7 @@ output: html_notebook
 
 *Note: Date is the when the data is edited. Players have been removed when teams lost, as they can no longer be factored in.*
 
-*Available options for players include Tyrese Haliburton, Myles Turner, Pascal Siakam, Jayson Tatum, Jaylen Brown, Jrue Holiday, Derrick White, Luka Doncic, Kyrie Irving, PJ Washington, Derick Lively, Daniel Gafford, Josh Green, Anthony Edwards, KAT, Jaden McDaniels, Rudy Gobert, and Mike Conley.*
+*Available options for players include Jayson Tatum, Jaylen Brown, Jrue Holiday, Derrick White, Luka Doncic, Kyrie Irving, PJ Washington, Derick Lively, Daniel Gafford, Josh Green, Anthony Edwards, KAT, Jaden McDaniels, Rudy Gobert, and Mike Conley.*
 
 ```{r echo = T}
 #Read in data and find running average of each category
@@ -16,10 +16,10 @@ output: html_notebook
 
 library(readxl)
 library(dplyr)
-nba <- read_excel("~/NBA DATA.xlsx")
-nba <- na.omit(nba)
+nba <- read_excel("NBA DATA.xlsx")
 nba <- nba %>%
-  slice(-c(206, 221)) #Removing Missed Games
+  slice(-c(242,263)) #Removing Missed Games
+nba <- na.omit(nba)
 nba$Pts <- as.numeric(nba$Pts)
 nba$Reb <- as.numeric(nba$Reb)
 nba$Assists <- as.numeric(nba$Assists)
@@ -44,10 +44,6 @@ LD <- nba %>%
   filter(Player == "Luka Doncic")
 AE <- nba %>%
   filter(Player == "Anthony Edwards")
-TH <- nba %>%
-  filter(Player == "Tyrese Haliburton")
-MT <- nba %>%
-  filter(Player == "Myles Turner")
 JB <- nba %>%
   filter(Player == "Jaylen Brown")
 PJ <- nba %>%
@@ -68,8 +64,6 @@ KT <- nba %>%
   filter(Player == "KAT")
 JM <- nba %>%
   filter(Player == "Jaden McDaniels")
-PS <- nba %>%
-  filter(Player == "Pascal Siakam")
 JT <- nba %>%
   filter(Player == "Jayson Tatum")
 KI <- nba %>%
@@ -80,28 +74,43 @@ KI <- nba %>%
 #Show graphical analysis of each player with the respected stat line you wish 
 
 library(ggplot2)
-ggplot(DW, aes(x = DW$`Total Game`, y = Reb)) + #Use the indicator markers for player for the first argument after ggplot( and also after the x = 
+ggplot(JT, aes(x = JT$`Total Game`, y = Pts)) + #Use the indicator markers for player for the first argument after ggplot( and also after the x = 
   geom_line() +
   geom_point() +
-  geom_line(aes(y = DW$RegSeasonRPG),color = "blue")+
+  geom_line(aes(y = JT$RegSeasonPPG),color = "blue")+
   geom_smooth(method = "lm", se = FALSE, color = "red")+
-  labs(title = "Rebounds for Derrick White", #Here you would insert the players name as well after "for" and the respective stat line you modeled
+  labs(title = "Pts for Desired Player", #Here you would insert the players name as well after "for" and the respective stat line you modeled
        x = "Game",
-       y = "Rebounds")
+       y = "Points")
 ```
 
 ```{r echo = T}
 #Confidence interval for desired player and the stat line wished upon
 
-t.test(DW$Reb, conf.level = 0.65)$conf.int
+t.test(AE$Pts, conf.level = 0.30)$conf.int
 ```
 
 ```{r echo = T}
 #Finding the percentage of how many times a player has done this kind of stat line in the playoffs
 
-100 * (sum(DW$Reb > 4) / nrow(DW))
+bet1 <- (sum(DG$Assists > 0.5 ) / nrow(DG))
+bet2 <- (sum(AE$Pts < 27.5 ) / nrow(AE))
+bet3 <- (sum(RG$Assists < 1.5 ) / nrow(RG))
+bet4 <- (sum(RG$Reb > 10.5 ) / nrow(RG))
+bet5 <- (sum(PJ$`3PM` > 1.5 ) / nrow(PJ))
+bet6 <- (sum(LD$Pts >= 25 ) / nrow(LD))
+bet1
+bet2
+bet3
+bet4
+bet5
+bet6
 ```
-```{r echo = T}
 
+
+```{r echo = T}
+#Percentage change of hitting bet (Take all percentages above and add it to the numbers )
+
+(bet1 * bet2 * bet3 * bet4 * bet5 * bet6)
 ```
 
