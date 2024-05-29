@@ -18,7 +18,7 @@ library(readxl)
 library(dplyr)
 nba <- read_excel("NBA DATA.xlsx")
 nba <- nba %>%
-  slice(-c(242,263)) #Removing Missed Games
+  slice(-c(141,242,263)) #Removing Missed Games
 nba <- na.omit(nba)
 nba$Pts <- as.numeric(nba$Pts)
 nba$Reb <- as.numeric(nba$Reb)
@@ -74,10 +74,10 @@ KI <- nba %>%
 #Show graphical analysis of each player with the respected stat line you wish 
 
 library(ggplot2)
-ggplot(JT, aes(x = JT$`Total Game`, y = Pts)) + #Use the indicator markers for player for the first argument after ggplot( and also after the x = 
+ggplot(KI, aes(x = KI$`Total Game`, y = Assists)) + #Use the indicator markers for player for the first argument after ggplot( and also after the x = 
   geom_line() +
   geom_point() +
-  geom_line(aes(y = JT$RegSeasonPPG),color = "blue")+
+  geom_line(aes(y = KI$RegSeasonAPG),color = "blue")+
   geom_smooth(method = "lm", se = FALSE, color = "red")+
   labs(title = "Pts for Desired Player", #Here you would insert the players name as well after "for" and the respective stat line you modeled
        x = "Game",
@@ -87,30 +87,75 @@ ggplot(JT, aes(x = JT$`Total Game`, y = Pts)) + #Use the indicator markers for p
 ```{r echo = T}
 #Confidence interval for desired player and the stat line wished upon
 
-t.test(AE$Pts, conf.level = 0.30)$conf.int
+t.test(MC$Reb, conf.level = 0.30)$conf.int
 ```
 
 ```{r echo = T}
 #Finding the percentage of how many times a player has done this kind of stat line in the playoffs
 
-bet1 <- (sum(DG$Assists > 0.5 ) / nrow(DG))
-bet2 <- (sum(AE$Pts < 27.5 ) / nrow(AE))
-bet3 <- (sum(RG$Assists < 1.5 ) / nrow(RG))
-bet4 <- (sum(RG$Reb > 10.5 ) / nrow(RG))
-bet5 <- (sum(PJ$`3PM` > 1.5 ) / nrow(PJ))
-bet6 <- (sum(LD$Pts >= 25 ) / nrow(LD))
+bet1 <- (sum(AE$Assists < 8.5 ) / nrow(AE))
+bet2 <- (sum(JM$Reb > 2.5 ) / nrow(JM))
+bet3 <- (sum(LD$Reb > 6.5 ) / nrow(LD))
+bet4 <- (sum(MC$Reb > 1.5 ) / nrow(MC))
+bet5 <- (sum(KI$Assists < 6.5 ) / nrow(KI))
+bet6 <- (sum(LD$Pts >= 20 ) / nrow(LD))
+bet7 <- (sum(JG$Assists < 1.5 ) / nrow(JG))
 bet1
 bet2
 bet3
 bet4
 bet5
 bet6
+bet7
 ```
 
 
 ```{r echo = T}
 #Percentage change of hitting bet (Take all percentages above and add it to the numbers )
 
-(bet1 * bet2 * bet3 * bet4 * bet5 * bet6)
+parlay_percent <- (bet1 * bet2 * bet3 * bet4 * bet5 * bet6 * bet7)
+parlay_percent
 ```
+
+```{r echo = T}
+#Calculate odds for the total parlay based on number of legs that you have
+
+parlay_odds <- function(stake, ...) {
+  odds_vals <- list(...)
+  n_odds <- length(odds_vals)
+  dec_odds <- numeric(n_odds)
+  
+#Conversions
+  for (i in seq_along(odds_vals)) {
+    if (odds_vals[[i]] < 0) {
+      dec_odds[i] <- (abs(odds_vals[[i]]) + 100) / abs(odds_vals[[i]])
+    } else {
+      dec_odds[i] <- 1 + (odds_vals[[i]] / 100)
+    }
+  }
+  
+#Total odds for parlay
+  tot_dec_odds <- prod(dec_odds)
+  
+#Payout to Bettor
+  potential_payout <- (bet_size * tot_dec_odds) + bet_size
+  
+  return(list(total_decimal_odds = tot_dec_odds, potential_payout = potential_payout))
+}
+
+#This is where you would put in your data. Bet size is your bet size. The numbers afterwards are DraftKings calculations for how much you would win. Therefore, there will be no need for odds input above.
+
+bet_size <- 10
+
+#Right here is where you put all odds below after bet_size.
+result <- parlay_odds(bet_size, -525,-102,-180,-166)
+
+total_decimal_odds <- result$total_decimal_odds
+potential_payout <- result$potential_payout
+
+#Here are the outputs. First number will be the total odds of a bet. The second number will be how much the payout will be in total if you were to win.
+print(total_decimal_odds)
+print(potential_payout)
+```
+
 
