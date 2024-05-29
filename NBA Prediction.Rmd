@@ -93,34 +93,55 @@ t.test(MC$Reb, conf.level = 0.30)$conf.int
 ```{r echo = T}
 #Finding the percentage of how many times a player has done this kind of stat line in the playoffs
 
-bet1 <- (sum(AE$Assists < 8.5 ) / nrow(AE))
-bet2 <- (sum(JM$Reb > 2.5 ) / nrow(JM))
-bet3 <- (sum(LD$Reb > 6.5 ) / nrow(LD))
-bet4 <- (sum(MC$Reb > 1.5 ) / nrow(MC))
-bet5 <- (sum(KI$Assists < 6.5 ) / nrow(KI))
-bet6 <- (sum(LD$Pts >= 20 ) / nrow(LD))
-bet7 <- (sum(JG$Assists < 1.5 ) / nrow(JG))
-bet1
-bet2
-bet3
-bet4
-bet5
-bet6
-bet7
+# Calculate bet proportions and store in a named list
+bets <- list(
+  bet1 = sum(LD$Pts >= 20) / nrow(LD),
+  bet2 = sum(DG$Pts < 10.5) / nrow(DG),
+  bet3 = sum(DL$Pts < 10.5) / nrow(DL),
+  bet4 = sum(DL$Pts > 6.5) / nrow(DL),
+  bet5 = sum(MC$Pts > 10.5) / nrow(MC),
+  bet6 = sum(MC$Reb > 1.5) / nrow(MC),
+  bet7 = sum(KT$`3PM` < 2.5) / nrow(KT),
+  bet8 = sum(MC$`3PM` < 2.5) / nrow(MC),
+  bet9 = sum(PJ$`3PM` < 2.5) / nrow(PJ),
+  bet10 = sum(DL$Reb >= 5) / nrow(DL),
+  bet11 = sum(DG$Reb >= 5) / nrow(DG),
+  bet12 = sum(AE$Reb >= 5) / nrow(AE),
+  bet13 = sum(KT$Reb >= 5) / nrow(KT),
+  bet14 = sum(LD$Reb >= 8) / nrow(LD),
+  bet15 = sum(RG$Reb > 8) / nrow(RG),
+  bet16 = sum(AE$Assists >= 5) / nrow(LD),
+  bet17 = sum(MC$Assists >= 5) / nrow(MC),
+  bet18 = sum(KI$Assists < 6.5) / nrow(KI),
+  bet19 = sum(JM$Reb > 1.5) / nrow(JM),
+  bet20 = sum(KI$Reb > 1.5) / nrow(KI),
+  bet21 = sum(KI$Reb < 5.5) / nrow(KI),
+  bet22 = sum(LD$Reb < 10.5) / nrow(LD),
+  bet23 = sum(JG$`3PM` > 0.5) / nrow(JG),
+  bet24 = sum(JM$Pts < 12.5) / nrow(JM),
+  bet25 = sum(JM$Pts >= 8) / nrow(JM),
+  bet26 = sum(LD$Pts >= 25) / nrow(LD)
+)
+
+threshold <- 0.8
+
+good_bets <- bets[sapply(bets, function(x) x >= threshold)]
+
+good_bets
 ```
 
 
 ```{r echo = T}
 #Percentage change of hitting bet (Take all percentages above and add it to the numbers )
 
-parlay_percent <- (bet1 * bet2 * bet3 * bet4 * bet5 * bet6 * bet7)
+parlay_percent <- (bets$bet1 * bets$bet6 * bets$bet12 * bets$bet13 * bets$bet16 *bets$bet18 *bets$bet19 *bets$bet20)
 parlay_percent
 ```
 
 ```{r echo = T}
 #Calculate odds for the total parlay based on number of legs that you have
 
-parlay_odds <- function(stake, ...) {
+parlay_odds <- function(bet_size, ...) {
   odds_vals <- list(...)
   n_odds <- length(odds_vals)
   dec_odds <- numeric(n_odds)
@@ -138,9 +159,10 @@ parlay_odds <- function(stake, ...) {
   tot_dec_odds <- prod(dec_odds)
   
 #Payout to Bettor
-  potential_payout <- (bet_size * tot_dec_odds) + bet_size
+  potential_payout <- (bet_size * tot_dec_odds)
+  profit <- potential_payout - bet_size
   
-  return(list(total_decimal_odds = tot_dec_odds, potential_payout = potential_payout))
+  return(list(total_decimal_odds = tot_dec_odds, potential_payout = potential_payout ,profit=profit))
 }
 
 #This is where you would put in your data. Bet size is your bet size. The numbers afterwards are DraftKings calculations for how much you would win. Therefore, there will be no need for odds input above.
@@ -148,14 +170,16 @@ parlay_odds <- function(stake, ...) {
 bet_size <- 10
 
 #Right here is where you put all odds below after bet_size.
-result <- parlay_odds(bet_size, -525,-102,-180,-166)
+result <- parlay_odds(bet_size, 100)
 
 total_decimal_odds <- result$total_decimal_odds
 potential_payout <- result$potential_payout
+profit <- result$profit
 
 #Here are the outputs. First number will be the total odds of a bet. The second number will be how much the payout will be in total if you were to win.
 print(total_decimal_odds)
 print(potential_payout)
+print(profit)
 ```
 
 
